@@ -49,6 +49,25 @@ func (c *Client) GetTokenAccountsByOwnerByProgram(ctx context.Context, owner, pr
 	)
 }
 
+func (c *Client) GetTokenAccountsByOwnerByProgramWithConfig(ctx context.Context, owner, programId string, cfg rpc.GetTokenAccountBalanceConfig) ([]TokenAccount, error) {
+	return process(
+		func() (rpc.JsonRpcResponse[rpc.ValueWithContext[rpc.GetProgramAccounts]], error) {
+			return c.RpcClient.GetTokenAccountsByOwnerWithConfig(
+				ctx,
+				owner,
+				rpc.GetTokenAccountsByOwnerConfigFilter{
+					ProgramId: programId,
+				},
+				rpc.GetTokenAccountsByOwnerConfig{
+					Encoding:   rpc.AccountEncodingBase64,
+					Commitment: cfg.Commitment,
+				},
+			)
+		},
+		convertGetTokenAccountsByOwner,
+	)
+}
+
 func (c *Client) GetTokenAccountsByOwnerWithContextByMint(ctx context.Context, owner, mintAddr string) (rpc.ValueWithContext[[]TokenAccount], error) {
 	return process(
 		func() (rpc.JsonRpcResponse[rpc.ValueWithContext[rpc.GetProgramAccounts]], error) {
